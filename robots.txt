@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ueber-uns.versicherungstech-magazin.de/sitemap.xml
