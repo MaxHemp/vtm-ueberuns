@@ -9,6 +9,12 @@
    Nur Marke und Newsletter-Anker. Die Rubriken-Navigation liefert die
    umgebende Website, deshalb bleibt die Leiste flach (56/64 px statt 76).
    -------------------------------------------------------------------------- */
+main,
+.site-footer {
+  position: relative;
+  z-index: 1;
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -106,33 +112,33 @@
 
 
 /* --------------------------------------------------------------------------
-   Hero-Canvas: "Signal im Rauschen"
-   Liegt unter der Atmosphäre-Ebene und unter dem Inhalt. Dieselbe Maske wie
-   das CSS-Raster, damit der Text links frei bleibt und die Szene nach rechts
-   aufmacht. Ohne WebGL fehlt hier schlicht eine Ebene.
+   Signalachse
+   Feste Ebene in der rechten Randspalte, begleitet die ganze Seite. Liegt
+   hinter allem Inhalt und faengt keine Klicks ab. Die Maske haelt sie aus der
+   Textspalte heraus: links vollstaendig transparent, erst ab 62 % der Breite
+   voll sichtbar. Unter 1100 px gibt es keine Randspalte, dort entfaellt sie.
    -------------------------------------------------------------------------- */
-.hero-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.35) 18%, #000 44%);
-  mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.35) 18%, #000 44%);
+.signal-axis {
+  display: none;
 }
-/* Läuft die Szene, treten die statischen CSS-Orbits zurück: sonst lägen
-   zwei Ringsysteme übereinander. */
-.hero.has-scene .hero-orbit {
-  /* Die Orbits tragen eine Keyframe-Animation, und Animationen schlagen
-     normale Deklarationen. Ohne animation:none bliebe opacity:0 wirkungslos. */
-  animation: none;
-  opacity: 0;
-  transition: opacity 700ms var(--ease-signal);
-}
-.hero.has-scene .hero-atmosphere::before {
-  opacity: 0.18;
+@media (min-width: 1100px) {
+  .signal-axis {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    /* Ueber dem Inhalt, sonst verdecken die Abschnittshintergruende sie.
+       Unter der Kopfzeile (z-nav) und ohne Klickfang. */
+    z-index: 3;
+    width: 260px;
+    height: 100dvh;
+    opacity: 0;
+    pointer-events: none;
+    /* Feste Breite, am rechten Rand verankert: die volle Deckkraft beginnt
+       damit immer rechts der 1200px-Inhaltsspalte, unabhaengig vom Viewport. */
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.18) 34%, #000 58%);
+    mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.18) 34%, #000 58%);
+  }
 }
 
 /* --------------------------------------------------------------------------

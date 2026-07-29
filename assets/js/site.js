@@ -10,15 +10,14 @@
      5. Scrollspy für das Inhaltsverzeichnis
      6. Zähler der Reichweiten-Kennzahlen
      7. Lichtkegel auf Karten (nur bei präzisem Zeiger)
-     8. Lazy-Start der WebGL-Szene
+     8. Lazy-Start der Signalachse
      9. Newsletter-Formular
 
    Grundsätze:
    - Kein einziger scroll-Event-Listener. ScrollTrigger batcht selbst.
    - Animiert werden ausschließlich transform und opacity.
    - prefers-reduced-motion schaltet jede Bewegung ab, Inhalte bleiben.
-   - Die WebGL-Szene ist reine Zugabe: fällt sie aus, sieht man die
-     CSS-Orbits aus dem Design System und sonst nichts Fehlendes.
+   - Die Signalachse ist reine Zugabe: fällt sie aus, fehlt nichts Inhaltliches.
    ========================================================================== */
 (function () {
   'use strict';
@@ -30,6 +29,8 @@
   var hasMotion = !!(gsap && ScrollTrigger) && !prefersReduced();
 
   var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  var pageProgress = 0;
+  var activeSection = -1;
 
   function revealAll() {
     reveals.forEach(function (el) {
@@ -185,7 +186,13 @@
         trigger: document.documentElement,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.25
+        scrub: 0.25,
+        // Derselbe Fortschritt zeichnet die Signalachse fort. Ein Wert, zwei
+        // Anzeigen: der Balken oben und die Achse rechts erzaehlen dasselbe.
+        onUpdate: function (self) {
+          pageProgress = self.progress;
+          if (scene) scene.setProgress(self.progress);
+        }
       }
     });
   })();
@@ -196,34 +203,12 @@
      Derselbe Fortschritt fährt die Ordnung der 3D-Szene hoch, damit Text
      und Szene dieselbe Geste erzählen.
      ---------------------------------------------------------------------- */
-  var heroProgress = { value: 0 };
   var scene = null;
-
-  // Die Ordnung der Szene hat zwei Quellen: einen Einlauf beim Laden und den
-  // Scroll-Fortschritt. Ohne den Einlauf stünde beim Ankommen nur Rauschen im
-  // Bild, und die Auflösung passierte erst, während der Kopfbereich schon
-  // wegscrollt. Also: beim Laden ordnet sich das Netz bis 0.72, das Scrollen
-  // zieht den Rest.
-  var sceneIntro = { value: 0 };
-  function pushOrder() {
-    if (scene) scene.setOrder(sceneIntro.value * (0.78 + 0.22 * heroProgress.value));
-  }
 
   (function hero() {
     var heroEl = document.querySelector('.hero');
     var inner = document.getElementById('hero-inner');
     if (!heroEl) return;
-
-    ScrollTrigger.create({
-      trigger: heroEl,
-      start: 'top top',
-      end: 'bottom top',
-      scrub: true,
-      onUpdate: function (self) {
-        heroProgress.value = self.progress;
-        pushOrder();
-      }
-    });
 
     if (inner) gsap.set(inner, { opacity: 1, y: 0 });
 
@@ -346,14 +331,19 @@
       }
     }
 
-    links.forEach(function (link) {
+    links.forEach(function (link, i) {
       var section = document.getElementById(link.getAttribute('href').slice(1));
       if (!section) return;
       ScrollTrigger.create({
         trigger: section,
         start: 'top 34%',
         end: 'bottom 34%',
-        onToggle: function (self) { if (self.isActive) activate(link); }
+        onToggle: function (self) {
+          if (!self.isActive) return;
+          activate(link);
+          activeSection = i;
+          if (scene) scene.setActive(i);
+        }
       });
     });
   })();
@@ -421,13 +411,13 @@
      Datensparmodus, kein 2G, mindestens 4 GB Gerätespeicher (sofern der
      Browser das verrät), WebGL vorhanden.
      ---------------------------------------------------------------------- */
-  (function scene3d() {
-    var canvas = document.getElementById('hero-canvas');
-    var heroEl = document.querySelector('.hero');
-    if (!canvas || !heroEl) return;
+  (function signalAxis() {
+    var canvas = document.getElementById('signal-axis');
+    if (!canvas) return;
 
     var conn = navigator.connection || {};
-    var wide = window.matchMedia('(min-width: 820px)').matches;
+    // Unter 1100 px gibt es keine Randspalte, dort blendet CSS die Achse aus.
+    var wide = window.matchMedia('(min-width: 1100px)').matches;
     var memoryOk = !navigator.deviceMemory || navigator.deviceMemory >= 4;
     if (!wide || conn.saveData || !memoryOk) return;
     if (/2g|slow-2g/.test(conn.effectiveType || '')) return;
@@ -440,38 +430,36 @@
     var idle = window.requestIdleCallback || function (cb) { return setTimeout(cb, 250); };
 
     idle(function () {
-      import('./hero-scene.js').then(function (mod) {
-        scene = mod.createHeroScene(canvas, { quality: 'high' });
-        window.__vtmScene = scene; // Handle zum Nachjustieren in der Konsole
-        sceneIntro.value = 0.45;
-        scene.setOrder(0.45 * 0.78, true);
+      import('./axis-scene.js').then(function (mod) {
+        scene = mod.createAxisScene(canvas, { quality: 'high' });
+        window.__vtmAxis = scene; // Handle zum Nachjustieren in der Konsole
+        scene.setProgress(pageProgress, true);
+        scene.setActive(activeSection);
         scene.start();
-        gsap.to(sceneIntro, {
-          value: 1,
-          duration: 1.8,
-          ease: 'power2.out',
-          onUpdate: pushOrder
-        });
-        heroEl.classList.add('has-scene');
-        gsap.fromTo(canvas, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out' });
+        gsap.fromTo(canvas, { opacity: 0 }, { opacity: 1, duration: 1.1, ease: 'power2.out' });
 
         window.addEventListener('resize', function () { scene.resize(); }, { passive: true });
 
-        heroEl.addEventListener('pointermove', function (e) {
-          var r = heroEl.getBoundingClientRect();
+        // Auf den dunklen Flaechen (Kontakt, Fussbereich) waere eine
+        // kobaltfarbene Achse unsichtbar. Dort wechselt sie auf Messing.
+        Array.prototype.forEach.call(
+          document.querySelectorAll('.section--dark, .site-footer'),
+          function (el) {
+            ScrollTrigger.create({
+              trigger: el,
+              start: 'top 55%',
+              end: 'bottom 45%',
+              onToggle: function (self) { scene.setDark(self.isActive); }
+            });
+          }
+        );
+
+        document.addEventListener('pointermove', function (e) {
           scene.setPointer(
-            (e.clientX - r.left) / r.width * 2 - 1,
-            (e.clientY - r.top) / r.height * 2 - 1
+            e.clientX / window.innerWidth * 2 - 1,
+            e.clientY / window.innerHeight * 2 - 1
           );
         }, { passive: true });
-
-        // Außerhalb des Sichtfelds und in Hintergrund-Tabs pausieren.
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) scene.start(); else scene.stop();
-          });
-        }, { threshold: 0 });
-        io.observe(heroEl);
 
         document.addEventListener('visibilitychange', function () {
           if (document.hidden) scene.stop(); else scene.start();
@@ -481,7 +469,7 @@
           if (e.matches) { scene.stop(); canvas.style.opacity = '0'; }
         });
       }).catch(function () {
-        // Kein Drama: die CSS-Orbits bleiben stehen.
+        // Kein Drama: die Seite funktioniert ohne die Achse vollstaendig.
       });
     }, { timeout: 1200 });
   })();
