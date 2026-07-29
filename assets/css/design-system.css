@@ -1,0 +1,876 @@
+/* ==========================================================================
+   VTM Brand & Design System 4.2 — Produktions-Build
+   --------------------------------------------------------------------------
+   Enthält: Webfonts (selbst gehostet), Tokens, Base, Komponenten.
+   Quelle: _ds/vtm-design-system-* aus dem Design-Export.
+
+   ABWEICHUNGEN vom Export (bewusst, dokumentiert):
+   1. @font-face statt @import von Google Fonts
+      → keine Drittanbieter-Requests (DSGVO), kein Render-Blocking.
+   2. --text-muted: #6e7888 → #666f80
+      → #6e7888 erreicht auf Weiß nur 4.46:1 und auf --surface-soft 4.35:1
+        und verfehlt damit WCAG 2.2 AA (4.5:1). .meta / .kicker nutzen diese
+        Farbe bei ~13px und gelten NICHT als "large text".
+        #666f80 liefert 5.06:1 (weiß) bzw. 4.80:1 (paper-blue).
+      → Primitive --c-neutral-500 bleibt unverändert.
+   3. --research: #9b7017 → #8f6715 (4.45:1 → 5.10:1), gleiche Begründung.
+   4. Source Serif 4 wird nicht geladen: auf dieser Seite kommt
+      --font-editorial nicht vor. Der Fallback-Stack bleibt erhalten.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Webfonts — selbst gehostet, latin-Subset, WOFF2
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/plus-jakarta-sans-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/plus-jakarta-sans-latin-800-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/inter-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/inter-latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/inter-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* --------------------------------------------------------------------------
+   2. Tokens — Farben
+   -------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  /* Primitive Farben (VTM Brand & Design System 4.2) */
+  --c-cobalt-950: #121e39;
+  --c-cobalt-900: #172645;
+  --c-cobalt-800: #203255;
+  --c-cobalt-700: #2c4065;
+  --c-blue-800: #0e3387;
+  --c-blue-700: #123fa6;
+  --c-blue-600: #2468e8;
+  --c-blue-500: #427ef0;
+  --c-blue-100: #dce8ff;
+  --c-blue-050: #f2f6ff;
+  --c-brass-700: #9b7017;
+  --c-brass-600: #b48220;
+  --c-brass-500: #c99b32;
+  --c-brass-300: #e4c36e;
+  --c-brass-100: #f8edcf;
+  --c-white: #ffffff;
+  --c-paper: #fbfcfe;
+  --c-paper-blue: #f7f9fd;
+  --c-neutral-100: #edf0f5;
+  --c-neutral-200: #dce1e9;
+  --c-neutral-300: #c7ced9;
+  --c-neutral-500: #6e7888;
+  --c-neutral-700: #3f4958;
+  --c-black: #080d18;
+  --c-success: #17663a;
+  --c-success-bg: #e8f6ee;
+  --c-warning: #7a5200;
+  --c-warning-bg: #fff3d2;
+  --c-danger: #a52626;
+  --c-danger-bg: #fdeaea;
+
+  /* Semantische Farben */
+  --surface-page: var(--c-white);
+  --surface-soft: var(--c-paper);
+  --surface-muted: var(--c-paper-blue);
+  --surface-dark: var(--c-cobalt-950);
+  --text-primary: var(--c-cobalt-950);
+  --text-secondary: var(--c-neutral-700);
+  --text-muted: #666f80; /* siehe Abweichung 2 */
+  --text-inverse: var(--c-white);
+  --border-soft: rgb(18 30 57 / 0.10);
+  --border-medium: rgb(18 30 57 / 0.18);
+  --border-electric: rgb(18 63 166 / 0.24);
+  --border-brass: rgb(155 112 23 / 0.26);
+  --action: var(--c-blue-700);
+  --action-hover: var(--c-blue-800);
+  --action-soft: var(--c-blue-050);
+  --focus: var(--c-blue-600);
+  --research: #8f6715; /* siehe Abweichung 3 */
+
+  /* Farben auf dunklem Grund (fixiert, damit nicht überall Alpha steht) */
+  --on-dark: rgb(255 255 255 / 0.80);
+  --on-dark-strong: rgb(255 255 255 / 0.90);
+  --on-dark-quiet: rgb(255 255 255 / 0.60);
+  --hairline-dark: rgb(255 255 255 / 0.13);
+}
+
+/* --------------------------------------------------------------------------
+   3. Tokens — Typografie
+   -------------------------------------------------------------------------- */
+:root {
+  --font-display: "Plus Jakarta Sans", "Aptos Display", "Segoe UI", Arial, sans-serif;
+  --font-body: "Inter", "Aptos", "Segoe UI", Arial, sans-serif;
+  --font-editorial: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --step--1: clamp(0.76rem, 0.73rem + 0.10vw, 0.82rem);
+  --step-0: clamp(1rem, 0.97rem + 0.16vw, 1.08rem);
+  --step-1: clamp(1.18rem, 1.10rem + 0.35vw, 1.38rem);
+  --step-2: clamp(1.45rem, 1.28rem + 0.74vw, 1.88rem);
+  --step-3: clamp(1.86rem, 1.56rem + 1.20vw, 2.56rem);
+  --step-4: clamp(2.35rem, 1.84rem + 2.08vw, 3.55rem);
+  --step-5: clamp(3rem, 2.12rem + 3.55vw, 5.05rem);
+  --step-hero: clamp(3.25rem, 1.75rem + 6vw, 7.6rem);
+}
+
+/* --------------------------------------------------------------------------
+   4. Tokens — Layout & Motion
+   -------------------------------------------------------------------------- */
+:root {
+  --content-max: 1200px;
+  --reading-max: 720px;
+  --wide-max: 1440px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 8px;
+  --motion-fast: 160ms;
+  --motion-medium: 320ms;
+  --motion-slow: 780ms;
+  --motion-atmosphere: 14s;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-signal: cubic-bezier(0.22, 1, 0.36, 1);
+  --z-base: 1;
+  --z-nav: 100;
+  --z-skip: 1000;
+}
+
+/* --------------------------------------------------------------------------
+   5. Tokens — Effekte
+   -------------------------------------------------------------------------- */
+:root {
+  --shadow-soft: 0 1px 2px rgb(18 30 57 / 0.04), 0 12px 32px rgb(18 30 57 / 0.055);
+  --shadow-medium: 0 2px 4px rgb(18 30 57 / 0.05), 0 18px 48px rgb(18 30 57 / 0.10);
+  --glow-electric: 0 0 0 1px rgb(18 63 166 / 0.08), 0 14px 44px rgb(18 63 166 / 0.13);
+  --glow-electric-strong: 0 0 0 1px rgb(18 63 166 / 0.13), 0 20px 60px rgb(18 63 166 / 0.18);
+  --glow-brass: 0 0 0 1px rgb(155 112 23 / 0.13), 0 14px 42px rgb(155 112 23 / 0.13);
+  --gradient-brand: linear-gradient(135deg, var(--c-cobalt-950) 0%, var(--c-blue-700) 58%, var(--c-blue-600) 100%);
+  --gradient-brand-deep: linear-gradient(125deg, var(--c-cobalt-950) 0%, #172f64 42%, var(--c-blue-700) 76%, var(--c-blue-600) 100%);
+  --gradient-signature: linear-gradient(135deg, var(--c-brass-300), var(--c-brass-500) 46%, var(--c-brass-700));
+  --gradient-electric-beam: linear-gradient(90deg, transparent 0%, rgb(18 63 166 / 0.08) 18%, rgb(36 104 232 / 0.82) 47%, rgb(255 255 255 / 0.92) 52%, rgb(36 104 232 / 0.44) 59%, transparent 100%);
+  --gradient-brass-beam: linear-gradient(105deg, transparent 0%, rgb(201 155 50 / 0.07) 32%, rgb(255 235 172 / 0.88) 48%, rgb(155 112 23 / 0.42) 55%, transparent 70%);
+  --gradient-hero-atmosphere: radial-gradient(circle at 78% 18%, rgb(36 104 232 / 0.15), transparent 31%),
+    radial-gradient(circle at 92% 68%, rgb(18 63 166 / 0.09), transparent 28%),
+    radial-gradient(circle at 16% 86%, rgb(201 155 50 / 0.065), transparent 25%),
+    linear-gradient(180deg, #f2f6ff 0%, #fafcff 52%, #ffffff 100%);
+}
+
+/* --------------------------------------------------------------------------
+   6. Base
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: var(--text-primary);
+  background: var(--surface-page);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  font-weight: 400;
+  line-height: 1.72;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+img,
+svg,
+picture,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+img {
+  height: auto;
+}
+
+button,
+input,
+textarea,
+select {
+  color: inherit;
+  font: inherit;
+}
+
+a {
+  color: var(--action);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+a:hover {
+  color: var(--action-hover);
+}
+
+p,
+ul,
+ol,
+blockquote,
+figure,
+pre,
+table {
+  margin-top: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+h1 {
+  font-size: var(--step-hero);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.065em;
+}
+h2 {
+  font-size: var(--step-4);
+}
+h3 {
+  font-size: var(--step-2);
+  letter-spacing: -0.025em;
+}
+h4 {
+  font-size: var(--step-1);
+  letter-spacing: -0.018em;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-mono);
+}
+code {
+  font-size: 0.88em;
+}
+
+::selection {
+  color: var(--c-white);
+  background: var(--c-blue-700);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+/* Auf dunklen Flächen braucht der Fokusring hellen Kontrast */
+.on-dark :focus-visible {
+  outline-color: var(--c-brass-300);
+}
+
+.wrap {
+  width: min(calc(100% - clamp(2rem, 7vw, 7rem)), var(--content-max));
+  margin-inline: auto;
+}
+.wrap-wide {
+  width: min(calc(100% - clamp(1.5rem, 5vw, 5rem)), var(--wide-max));
+  margin-inline: auto;
+}
+.reading-width {
+  max-width: var(--reading-max);
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.meta,
+.kicker {
+  margin-bottom: var(--space-3);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--action);
+}
+.kicker::before {
+  content: "";
+  width: 1.9rem;
+  height: 2px;
+  flex: none;
+  background: linear-gradient(90deg, var(--c-blue-700), var(--c-blue-600));
+  box-shadow: 0 0 12px rgb(36 104 232 / 0.25);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: var(--space-4);
+  color: var(--action);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.eyebrow::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--c-blue-600);
+  border: 2px solid var(--c-white);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgb(36 104 232 / 0.09), 0 0 16px rgb(36 104 232 / 0.30);
+}
+
+.lead {
+  max-width: 66ch;
+  color: var(--text-secondary);
+  font-size: var(--step-1);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+blockquote {
+  margin-inline: 0;
+  color: var(--text-primary);
+  font-family: var(--font-editorial);
+  font-size: clamp(1.35rem, 1.12rem + 0.9vw, 2rem);
+  font-style: italic;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+}
+blockquote footer {
+  margin-top: 1rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   7. Komponenten — Buttons
+   -------------------------------------------------------------------------- */
+.button-row,
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block: var(--space-5);
+}
+
+.button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  overflow: hidden;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-s);
+  font-family: var(--font-body);
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--motion-fast) ease, background var(--motion-fast) ease,
+    border-color var(--motion-fast) ease, box-shadow var(--motion-medium) ease,
+    transform var(--motion-fast) var(--ease-signal);
+}
+.button-primary {
+  color: var(--c-white);
+  background: var(--c-blue-700);
+  box-shadow: 0 8px 22px rgb(18 63 166 / 0.16), inset 0 1px 0 rgb(255 255 255 / 0.16);
+}
+.button-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 0 34%, rgb(255 255 255 / 0.25) 46%, transparent 58% 100%);
+  transform: translateX(-120%);
+  transition: transform 620ms var(--ease-signal);
+}
+.button-primary:hover {
+  color: var(--c-white);
+  background: var(--c-blue-800);
+  box-shadow: 0 12px 30px rgb(18 63 166 / 0.25), 0 0 0 1px rgb(36 104 232 / 0.18);
+  transform: translateY(-2px);
+}
+.button-primary:hover::before {
+  transform: translateX(120%);
+}
+.button-secondary {
+  color: var(--action);
+  background: var(--c-white);
+  border-color: rgb(18 63 166 / 0.30);
+}
+.button-secondary:hover {
+  color: var(--action-hover);
+  background: var(--c-blue-050);
+  border-color: var(--c-blue-700);
+  box-shadow: 0 10px 26px rgb(18 63 166 / 0.10);
+  transform: translateY(-2px);
+}
+.button-quiet {
+  color: var(--action);
+  background: transparent;
+  border-color: transparent;
+}
+.button-quiet:hover {
+  color: var(--action-hover);
+  background: var(--c-blue-050);
+}
+.button:active {
+  transform: translateY(0);
+  transition-duration: 80ms;
+}
+.button:disabled,
+.button[aria-disabled="true"] {
+  color: var(--c-neutral-500);
+  background: var(--c-neutral-100);
+  border-color: var(--c-neutral-200);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.72;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   8. Komponenten — Tags & Status
+   -------------------------------------------------------------------------- */
+.tag,
+.status {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-s);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+.tag {
+  color: var(--text-secondary);
+  background: var(--c-white);
+}
+.tag-electric {
+  color: var(--c-blue-800);
+  background: var(--c-blue-050);
+  border-color: rgb(18 63 166 / 0.24);
+}
+.tag-brass {
+  color: #6a4905;
+  background: var(--c-brass-100);
+  border-color: rgb(155 112 23 / 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   9. Komponenten — Cards
+   -------------------------------------------------------------------------- */
+.card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.35rem, 3vw, 2rem);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.99), var(--c-white));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--motion-medium) var(--ease-signal),
+    border-color var(--motion-medium) ease, box-shadow var(--motion-medium) ease;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(64px, 24%, 148px);
+  height: 2px;
+  opacity: 0.68;
+  background: linear-gradient(90deg, var(--c-blue-700), var(--c-blue-600), transparent);
+  transition: width var(--motion-slow) var(--ease-signal), opacity var(--motion-medium) ease;
+}
+.card::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(225deg, rgb(18 63 166 / 0.09) 0 48%, transparent 49%);
+  pointer-events: none;
+}
+.card:hover,
+.card:focus-within {
+  z-index: 2;
+  border-color: var(--border-electric);
+  box-shadow: var(--glow-electric);
+  transform: translateY(-3px);
+}
+.card:hover::before,
+.card:focus-within::before {
+  width: 54%;
+  opacity: 1;
+}
+.card h3 {
+  margin-bottom: var(--space-4);
+}
+.card .meta + h3 {
+  margin-top: 0;
+}
+
+.card-dark {
+  color: var(--on-dark);
+  background: radial-gradient(circle at 90% 0%, rgb(36 104 232 / 0.24), transparent 34%),
+    var(--gradient-brand-deep);
+  border-color: var(--hairline-dark);
+  box-shadow: 0 22px 54px rgb(18 30 57 / 0.20);
+}
+.card-dark h3,
+.card-dark h4 {
+  color: var(--c-white);
+}
+.card-dark .meta {
+  color: var(--c-brass-300);
+}
+.card-dark::before {
+  background: linear-gradient(90deg, var(--c-brass-300), var(--c-blue-500), transparent);
+}
+.card-dark::after {
+  background: linear-gradient(225deg, rgb(255 255 255 / 0.10) 0 48%, transparent 49%);
+}
+.card-dark:hover {
+  border-color: rgb(255 255 255 / 0.24);
+  box-shadow: 0 0 0 1px rgb(36 104 232 / 0.12), 0 28px 68px rgb(18 30 57 / 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   10. Komponenten — Notes & Listen
+   -------------------------------------------------------------------------- */
+.note {
+  position: relative;
+  margin-top: var(--space-6);
+  padding: 1.2rem 1.3rem 1.2rem 1.5rem;
+  color: var(--text-secondary);
+  background: linear-gradient(90deg, rgb(18 63 166 / 0.055), transparent), var(--c-blue-050);
+  border: 1px solid rgb(18 63 166 / 0.15);
+  border-left: 3px solid var(--c-blue-700);
+  border-radius: 0 var(--radius-m) var(--radius-m) 0;
+}
+
+.number-list {
+  list-style: none;
+  counter-reset: number-list;
+  padding: 0;
+}
+.number-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  gap: 1rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--border-soft);
+  counter-increment: number-list;
+}
+.number-list li::before {
+  content: "0" counter(number-list);
+  color: var(--action);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+/* --------------------------------------------------------------------------
+   11. Komponenten — Signal Line & Brand Rail
+   -------------------------------------------------------------------------- */
+.brand-rail {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  background: var(--c-cobalt-950);
+}
+.brand-rail::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--c-cobalt-950) 0%, var(--c-blue-700) 48%,
+    var(--c-blue-600) 78%, var(--c-brass-500) 96%, var(--c-brass-300) 100%);
+}
+.brand-rail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -28%;
+  width: 24%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.88), transparent);
+  filter: blur(2px);
+  opacity: 0;
+  animation: vtm-rail-pass 10s 1.4s ease-in-out infinite;
+}
+@keyframes vtm-rail-pass {
+  0%,
+  68% {
+    left: -28%;
+    opacity: 0;
+  }
+  74% {
+    opacity: 0.92;
+  }
+  90% {
+    opacity: 0.42;
+  }
+  100% {
+    left: 108%;
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   12. Komponenten — Formulare
+   -------------------------------------------------------------------------- */
+.form-field {
+  display: grid;
+  gap: 0.45rem;
+}
+.form-field label {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+.form-field input:not([type="checkbox"]),
+.form-field textarea,
+.form-field select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem 0.85rem;
+  color: var(--text-primary);
+  background: var(--c-white);
+  border: 1px solid var(--c-neutral-300);
+  border-radius: var(--radius-s);
+  transition: border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+}
+.form-field input:hover,
+.form-field textarea:hover,
+.form-field select:hover {
+  border-color: var(--c-neutral-500);
+}
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgb(36 104 232 / 0.16);
+}
+.form-field small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.field-error-message {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--c-danger);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin: 0;
+}
+.field-error-message::before {
+  content: "!";
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  color: var(--c-white);
+  background: var(--c-danger);
+  border-radius: 50%;
+  font-size: 0.66rem;
+  font-weight: 700;
+  transform: translateY(0.1em);
+}
+
+/* --------------------------------------------------------------------------
+   13. Hero-Atmosphäre (code-native Markenaufmacher)
+   -------------------------------------------------------------------------- */
+.hero-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-atmosphere::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.30;
+  background-image: linear-gradient(rgb(18 30 57 / 0.052) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(18 30 57 / 0.052) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.46) 42%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.46) 42%, #000 100%);
+}
+.hero-orbit {
+  position: absolute;
+  border: 1px solid rgb(18 63 166 / 0.12);
+  border-radius: 50%;
+  transform: rotate(-12deg);
+}
+.hero-orbit-a {
+  top: -46%;
+  right: -18%;
+  width: min(62vw, 840px);
+  aspect-ratio: 1;
+  animation: vtm-orbit-drift var(--motion-atmosphere) var(--ease-signal) infinite alternate;
+}
+.hero-orbit-b {
+  top: 10%;
+  right: 7%;
+  width: min(38vw, 540px);
+  aspect-ratio: 1;
+  border-color: rgb(155 112 23 / 0.12);
+  animation: vtm-orbit-drift 18s var(--ease-signal) infinite alternate-reverse;
+}
+.hero-node {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: var(--c-blue-600);
+  border: 2px solid var(--c-white);
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgb(36 104 232 / 0.09), 0 0 24px rgb(36 104 232 / 0.38);
+}
+@keyframes vtm-orbit-drift {
+  from {
+    opacity: 0.5;
+    transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+  }
+  to {
+    opacity: 0.92;
+    transform: translate3d(-18px, 14px, 0) rotate(-9deg) scale(1.025);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orbit-a,
+  .hero-orbit-b,
+  .brand-rail::after {
+    animation: none;
+  }
+}
